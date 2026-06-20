@@ -10,15 +10,39 @@ The package folder can then be handed to any agent harness (Claude CLI, etc.)
 to run the review. This script never judges the text — it only prepares.
 
 Usage:
-  python build_package.py INPUT [-o OUTPUT_DIR]
+  python build_package.py [INPUT] [-o OUTPUT_DIR]
   INPUT may be a PDF / DOCX / PPTX / image (parsed with liteparse) or a
   .txt / .md file (used as-is, no liteparse needed).
+  If INPUT is omitted, the single file found in data/source/ is used
+  automatically. Either way, the package defaults to
+  data/processed/<input-name>-review-package unless -o overrides it.
 """
 import argparse, hashlib, json, os, re, shutil, subprocess, sys, datetime, pathlib
 
 SKILL_ROOT = pathlib.Path(__file__).resolve().parent.parent
+REPO_ROOT = SKILL_ROOT.parent
 ASSETS = SKILL_ROOT / "assets"
+DATA_SOURCE = REPO_ROOT / "data" / "source"
+DATA_PROCESSED = REPO_ROOT / "data" / "processed"
 PASSTHROUGH = {".txt", ".md", ".markdown", ".text"}
+
+
+def pick_auto_input() -> pathlib.Path:
+    """Locate the single document waiting in data/source/."""
+    if not DATA_SOURCE.is_dir():
+        sys.exit(f"ERROR: no INPUT given and {DATA_SOURCE} does not exist.")
+    candidates = sorted(
+        p for p in DATA_SOURCE.iterdir() if p.is_file() and not p.name.startswith(".")
+    )
+    if not candidates:
+        sys.exit(f"ERROR: no INPUT given and {DATA_SOURCE} is empty.")
+    if len(candidates) > 1:
+        listing = "\n".join(f"  - {p.name}" for p in candidates)
+        sys.exit(
+            f"ERROR: no INPUT given and {DATA_SOURCE} has multiple files; "
+            f"pass one explicitly:\n{listing}"
+        )
+    return candidates[0].resolve()
 
 
 def sha256(b: bytes) -> str:
@@ -80,17 +104,23 @@ def fill(template: str, mapping: dict) -> str:
 
 def main():
     ap = argparse.ArgumentParser(description="Build an AI-content review package.")
-    ap.add_argument("input", help="document to review (pdf/docx/pptx/image/txt/md)")
-    ap.add_argument("-o", "--output", help="output directory (default: ./<name>-review-package)")
+    ap.add_argument(
+        "input", nargs="?",
+        help="document to review (pdf/docx/pptx/image/txt/md); "
+             "omit to auto-pick the single file in data/source/",
+    )
+    ap.add_argument("-o", "--output", help="output directory "
+                                             "(default: data/processed/<name>-review-package)")
     args = ap.parse_args()
 
-    src = pathlib.Path(args.input).resolve()
+    auto = args.input is None
+    src = pick_auto_input() if auto else pathlib.Path(args.input).resolve()
     if not src.is_file():
         sys.exit(f"ERROR: input not found: {src}")
 
     name = src.stem
     out_dir = pathlib.Path(args.output).resolve() if args.output \
-        else pathlib.Path.cwd() / f"{name}-review-package"
+        else DATA_PROCESSED / f"{name}-review-package"
     out_dir.mkdir(parents=True, exist_ok=True)
     work = out_dir / ".work"
     work.mkdir(exist_ok=True)

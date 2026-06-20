@@ -1,0 +1,21 @@
+# Data (inputs/outputs of the prep phase)
+data/
+
+# Claude Code project settings
+.claude/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
