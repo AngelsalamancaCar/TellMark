@@ -162,9 +162,10 @@ to regenerate from — so it carries its own provenance notice
 
 ## Attribution & license
 
+This repository is licensed under the **MIT License** — see [`LICENSE`](LICENSE).
+You may use, copy, modify, and redistribute it with attribution and no warranty.
+
 The bundled tell catalog is derived from **vale-ai-tells** by Tony Burns,
 MIT-licensed (see `assets/rules/VALE-AI-TELLS-LICENSE.txt`). Conversion uses
 [liteparse](https://github.com/run-llama/liteparse) (Apache-2.0) by LlamaIndex.
-
-Choose and add a license for this repository itself (e.g. `LICENSE` at the root);
-note that redistributing the catalog must preserve the vale-ai-tells MIT notice.
+Redistributing the catalog must preserve the vale-ai-tells MIT notice.
