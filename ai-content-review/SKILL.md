@@ -35,12 +35,20 @@ Find the file the user wants reviewed (typically under `/mnt/user-data/uploads/`
 If they pasted raw text instead, save it to a `.md` file first so the script can
 process it.
 
+Also determine the **document's language** — ask the user, or infer it if the
+text makes it obvious. This picks the *tell catalog*: English documents use the
+default `ai-tells.md`; Spanish documents use the hand-authored `es-tells.md` via
+`-l es`. (This is a different question from the report language in step 3 —
+don't conflate them. A Spanish document can still get an English report.)
+
 ### 2. Build the package
 Run the bundled script. It converts the document with **liteparse** (or uses the
-text directly for `.txt`/`.md`) and assembles the package folder:
+text directly for `.txt`/`.md`) and assembles the package folder. Add `-l es` for
+a Spanish document so the Spanish catalog is bundled as `rules.md`:
 
 ```bash
-python3 scripts/build_package.py "<input-file>" -o "<name>-review-package"
+python3 scripts/build_package.py "<input-file>" -o "<name>-review-package"        # English (default)
+python3 scripts/build_package.py "<input-file>" -o "<name>-review-package" -l es  # Spanish
 ```
 
 The package contains `document.md` (line-anchored text), `rules.md` (the tell
@@ -48,11 +56,20 @@ criteria), `prompt.md` (the standardized instruction), `output-spec.md` (the
 required report format), `manifest.json`, and a `README.md`. This folder is
 portable: it has everything any agent harness needs, with no extra context.
 
-### 3. Run the review
+### 3. Ask the report language
+Before writing anything, ask the user what language `report.md` should be
+written in. Don't assume — not even from the document's own language. This is
+**independent** of the document language picked in step 1: that choice selects
+the *catalog* (`-l`), this one selects the *output*. Offer the document's source
+language and English as the two obvious choices if it helps frame the question,
+but let the user pick anything.
+
+### 4. Run the review
 Read `prompt.md`, `rules.md`, `document.md`, and `output-spec.md` from the
 package, then **perform the review yourself** following `prompt.md`'s method and
-producing the report exactly as `output-spec.md` specifies. Save it as
-`report.md` inside the package folder.
+producing the report exactly as `output-spec.md` specifies, written in the
+language the user chose in step 3. Save it as `report.md` inside the package
+folder.
 
 The core of the method (full detail in `prompt.md`):
 - Scan the document against every criterion in `rules.md`.
@@ -66,7 +83,7 @@ If the user instead wants to run the review in an external harness (e.g. Claude
 CLI), point them at the package `README.md` — it has the exact command — rather
 than running it here.
 
-### 4. Deliver
+### 5. Deliver
 Present the `report.md` and the package folder to the user. Lead with the honest
 overall assessment, then findings, then the concrete rewrite recommendations.
 
@@ -75,14 +92,25 @@ overall assessment, then findings, then the concrete rewrite recommendations.
 - `scripts/build_package.py` — converts + assembles the package.
 - `scripts/gen_rule_catalog.py` — regenerates `rules.md` from upstream
   vale-ai-tells (maintenance only; the catalog is already built).
-- `assets/rules/ai-tells.md` — the 60-criterion tell catalog used in every run.
+- `assets/rules/ai-tells.md` — the 60-criterion English tell catalog (default).
+- `assets/rules/es-tells.md` — the hand-authored Spanish tell catalog, selected
+  with `-l es`. See "Important framing" for its different provenance.
 - `assets/templates/` — the `prompt.md`, `output-spec.md`, and package `README`.
 - `references/pipeline.md` — how the pipeline works, dependencies, and limits.
 
 ## Important framing
 
-The tell catalog is adapted from the open-source **vale-ai-tells** project (MIT,
-© Tony Burns). Its own guidance: these patterns target technical documentation
-and are *less* meaningful in creative or marketing writing, and the goal is
-cleaning up prose — not adjudicating who wrote it. Report accordingly: candidates
-and suggestions, not accusations.
+The English tell catalog is adapted from the open-source **vale-ai-tells**
+project (MIT, © Tony Burns). Its own guidance: these patterns target technical
+documentation and are *less* meaningful in creative or marketing writing, and the
+goal is cleaning up prose — not adjudicating who wrote it. Report accordingly:
+candidates and suggestions, not accusations.
+
+The Spanish catalog (`es-tells.md`) has **different provenance**: it is
+hand-authored for this project (no upstream Spanish source exists), with a
+taxonomy inspired by vale-ai-tells but original phrase content under its own
+notice (`ES-TELLS-NOTICE.txt`). Extra caveats apply to it: it over-flags formal,
+academic, and translated Spanish; it covers a general/neutral register and does
+not yet distinguish Spain vs. Latin American variants; and the em-dash (raya)
+signal is downgraded because the raya is standard Spanish punctuation. Same
+framing holds — candidates, not verdicts.

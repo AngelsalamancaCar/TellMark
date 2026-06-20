@@ -1,0 +1,46 @@
+es-tells.md — Spanish AI-tell catalog: license & attribution notice
+===================================================================
+
+This file accompanies `es-tells.md` and `ai-content-review/assets/rules/`.
+
+Origin
+------
+The CATEGORY TAXONOMY and report shape of `es-tells.md` are inspired by
+vale-ai-tells by tbhb (https://github.com/tbhb/vale-ai-tells), which is
+MIT-licensed (© 2025-2026 Tony Burns). That structural debt is acknowledged;
+the upstream MIT terms are shipped separately as `VALE-AI-TELLS-LICENSE.txt`.
+
+The SPANISH PHRASE CONTENT of `es-tells.md` is original to this project. It was
+authored independently from observed Spanish output of general-purpose language
+models; vale-ai-tells contains no Spanish material, so its license does not and
+cannot cover this content.
+
+License for the original Spanish content
+-----------------------------------------
+The original Spanish content of `es-tells.md` is released under the MIT License:
+
+    MIT License
+
+    Copyright (c) 2026 ai-content-review contributors
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+Note: the copyright holder above is a placeholder ("ai-content-review
+contributors"). Replace it with the actual rights holder before any external
+distribution if a specific name is required.

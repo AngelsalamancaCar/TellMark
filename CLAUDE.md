@@ -33,6 +33,7 @@ lint-style hits to rubber-stamp — it weighs each candidate in context.
 | `scripts/build_package.py` | Convert (liteparse or passthrough) + anchor lines + copy assets + write manifest. | …add any detection/scoring logic here. Prep only. |
 | `scripts/gen_rule_catalog.py` | Regenerate the catalog from upstream vale-ai-tells YAML. Maintenance only. | …hand-edit `ai-tells.md` instead; regenerate so it stays faithful. |
 | `assets/rules/ai-tells.md` | The 60-criterion catalog used every run (generated artifact). | …treat as hand-authored; it's derived. |
+| `assets/rules/es-tells.md` | Spanish tell catalog, selected with `-l es`. **Exception to invariant 4**: hand-authored, not generated — no upstream Spanish source exists. | …regenerate it (there's no generator); edit it directly and keep its provenance header + `ES-TELLS-NOTICE.txt`. |
 | `assets/templates/prompt.md` | The standardized review instruction. | …weaken the false-positive / calibration guidance. |
 | `assets/templates/output-spec.md` | Required report shape. | …drop the Limitations section. |
 | `references/pipeline.md` | Internals, deps, extension points. | |
@@ -73,6 +74,12 @@ passthrough smoke test above plus eyeballing the generated package.
 - **liteparse text format is the default.** Its plain-text output has a stable
   shape across versions, so anchoring is reliable. liteparse can also emit JSON
   with bounding boxes; that path is unverified here and left as an extension.
+- **Spanish catalog is a scoped exception, not a precedent.** `es-tells.md` is
+  hand-authored because upstream vale-ai-tells ships no Spanish pack, so
+  `gen_rule_catalog.py` has nothing to regenerate from. This does **not** license
+  hand-editing `ai-tells.md` (which stays generated, invariant 4). The `-l` flag
+  that selects between catalogs is plumbing — file selection only, no detection
+  or scoring — and must stay that way if more languages are added.
 - **Heuristic framing is load-bearing.** Every layer (catalog header, prompt,
   output spec, README) repeats that these are candidates, not proof, and that the
   tool over-flags non-native writing. This is intentional redundancy.
@@ -87,6 +94,8 @@ passthrough smoke test above plus eyeballing the generated package.
    (The upstream README badge says Apache; the actual LICENSE is MIT. Trust the
    LICENSE file.)
 4. `ai-tells.md` is generated. Change it via `gen_rule_catalog.py`, not by hand.
+   (Sole exception: `es-tells.md` is hand-authored — there is no upstream Spanish
+   source to generate from. This exception does not extend to `ai-tells.md`.)
 5. Don't add network calls, telemetry, or browser storage anywhere.
 
 ## Extension points

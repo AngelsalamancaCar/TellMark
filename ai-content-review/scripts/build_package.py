@@ -26,6 +26,25 @@ DATA_SOURCE = REPO_ROOT / "data" / "source"
 DATA_PROCESSED = REPO_ROOT / "data" / "processed"
 PASSTHROUGH = {".txt", ".md", ".markdown", ".text"}
 
+# Catalog selection by document language. Pure file-selection — no detection,
+# no scoring. The chosen file is always copied into the package as `rules.md`,
+# so prompt.md / output-spec.md reference it generically and need no change.
+CATALOGS = {
+    "en": {
+        "rules": "ai-tells.md",
+        "license": "VALE-AI-TELLS-LICENSE.txt",
+        "source": "vale-ai-tells / ai-tells (https://github.com/tbhb/vale-ai-tells, MIT)",
+    },
+    "es": {
+        "rules": "es-tells.md",
+        # The structure credit (vale-ai-tells, MIT) plus the original-content notice.
+        "license": "VALE-AI-TELLS-LICENSE.txt",
+        "extra_license": "ES-TELLS-NOTICE.txt",
+        "source": "es-tells (hand-authored for this project; taxonomy inspired by "
+                  "vale-ai-tells, MIT; content original — see ES-TELLS-NOTICE.txt)",
+    },
+}
+
 
 def pick_auto_input() -> pathlib.Path:
     """Locate the single document waiting in data/source/."""
@@ -111,7 +130,13 @@ def main():
     )
     ap.add_argument("-o", "--output", help="output directory "
                                              "(default: data/processed/<name>-review-package)")
+    ap.add_argument("-l", "--lang", choices=sorted(CATALOGS), default="en",
+                    help="document language -> tell catalog to use (default: en). "
+                         "'es' selects the hand-authored Spanish catalog. "
+                         "This picks which static catalog to copy; it does no "
+                         "language detection and no scoring.")
     args = ap.parse_args()
+    catalog = CATALOGS[args.lang]
 
     auto = args.input is None
     src = pick_auto_input() if auto else pathlib.Path(args.input).resolve()
@@ -135,8 +160,10 @@ def main():
     (out_dir / "document.md").write_text(document_md, encoding="utf-8")
 
     # Copy the static criteria + prompt + spec into the package.
-    shutil.copy(ASSETS / "rules" / "ai-tells.md", out_dir / "rules.md")
-    shutil.copy(ASSETS / "rules" / "VALE-AI-TELLS-LICENSE.txt", out_dir / "VALE-AI-TELLS-LICENSE.txt")
+    shutil.copy(ASSETS / "rules" / catalog["rules"], out_dir / "rules.md")
+    shutil.copy(ASSETS / "rules" / catalog["license"], out_dir / catalog["license"])
+    if catalog.get("extra_license"):
+        shutil.copy(ASSETS / "rules" / catalog["extra_license"], out_dir / catalog["extra_license"])
     shutil.copy(ASSETS / "templates" / "prompt.md", out_dir / "prompt.md")
     shutil.copy(ASSETS / "templates" / "output-spec.md", out_dir / "output-spec.md")
 
@@ -153,7 +180,9 @@ def main():
         "document_md_sha256": sha256(document_md.encode()),
         "converter": "liteparse" if src.suffix.lower() not in PASSTHROUGH else "passthrough",
         "liteparse_version": liteparse_version() if src.suffix.lower() not in PASSTHROUGH else None,
-        "rules_source": "vale-ai-tells / ai-tells (https://github.com/tbhb/vale-ai-tells, MIT)",
+        "lang": args.lang,
+        "catalog": catalog["rules"],
+        "rules_source": catalog["source"],
         "line_count": document_md.count("\n"),
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
