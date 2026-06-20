@@ -34,6 +34,7 @@ CATALOGS = {
         "rules": "ai-tells.md",
         "license": "VALE-AI-TELLS-LICENSE.txt",
         "source": "vale-ai-tells / ai-tells (https://github.com/tbhb/vale-ai-tells, MIT)",
+        "name": "English",
     },
     "es": {
         "rules": "es-tells.md",
@@ -42,6 +43,7 @@ CATALOGS = {
         "extra_license": "ES-TELLS-NOTICE.txt",
         "source": "es-tells (hand-authored for this project; taxonomy inspired by "
                   "vale-ai-tells, MIT; content original — see ES-TELLS-NOTICE.txt)",
+        "name": "Spanish",
     },
 }
 
@@ -164,7 +166,11 @@ def main():
     shutil.copy(ASSETS / "rules" / catalog["license"], out_dir / catalog["license"])
     if catalog.get("extra_license"):
         shutil.copy(ASSETS / "rules" / catalog["extra_license"], out_dir / catalog["extra_license"])
-    shutil.copy(ASSETS / "templates" / "prompt.md", out_dir / "prompt.md")
+    prompt = fill(
+        (ASSETS / "templates" / "prompt.md").read_text(encoding="utf-8"),
+        {"LANG_NAME": catalog["name"]},
+    )
+    (out_dir / "prompt.md").write_text(prompt, encoding="utf-8")
     shutil.copy(ASSETS / "templates" / "output-spec.md", out_dir / "output-spec.md")
 
     readme = fill(

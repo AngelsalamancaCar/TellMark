@@ -30,11 +30,11 @@ lint-style hits to rubber-stamp — it weighs each candidate in context.
 | Path | Role | When editing, don't… |
 |---|---|---|
 | `SKILL.md` | Manifest + workflow. The `description` frontmatter is the **trigger** mechanism. | …casually reword the description; it controls when the skill fires. |
-| `scripts/build_package.py` | Convert (liteparse or passthrough) + anchor lines + copy assets + write manifest. | …add any detection/scoring logic here. Prep only. |
+| `scripts/build_package.py` | Convert (liteparse or passthrough) + anchor lines + copy assets + write manifest. Also fills `{LANG_NAME}` into `prompt.md` from the `-l` flag's catalog `name`. | …add any detection/scoring logic here. Prep only — the `-l`→`{LANG_NAME}` fill is a file-selection/substitution echo of a choice already made, not new judgment. |
 | `scripts/gen_rule_catalog.py` | Regenerate the catalog from upstream vale-ai-tells YAML. Maintenance only. | …hand-edit `ai-tells.md` instead; regenerate so it stays faithful. |
 | `assets/rules/ai-tells.md` | The 60-criterion catalog used every run (generated artifact). | …treat as hand-authored; it's derived. |
 | `assets/rules/es-tells.md` | Spanish tell catalog, selected with `-l es`. **Exception to invariant 4**: hand-authored, not generated — no upstream Spanish source exists. | …regenerate it (there's no generator); edit it directly and keep its provenance header + `ES-TELLS-NOTICE.txt`. |
-| `assets/templates/prompt.md` | The standardized review instruction. | …weaken the false-positive / calibration guidance. |
+| `assets/templates/prompt.md` | The standardized review instruction, with a `{LANG_NAME}` placeholder telling the agent what language to write `report.md` in. | …weaken the false-positive / calibration guidance; don't hardcode a language — keep it as the `{LANG_NAME}` placeholder. |
 | `assets/templates/output-spec.md` | Required report shape. | …drop the Limitations section. |
 | `references/pipeline.md` | Internals, deps, extension points. | |
 
@@ -80,6 +80,14 @@ passthrough smoke test above plus eyeballing the generated package.
   hand-editing `ai-tells.md` (which stays generated, invariant 4). The `-l` flag
   that selects between catalogs is plumbing — file selection only, no detection
   or scoring — and must stay that way if more languages are added.
+- **Report language follows the document, automatically.** The `-l` flag picked
+  in phase 1 (Prepare) now also decides the language of `report.md` in phase 2
+  (Review): `build_package.py` fills `{LANG_NAME}` (e.g. "English"/"Spanish")
+  into `prompt.md` from `CATALOGS[lang]["name"]`, and the agent writes the whole
+  report in that language (quoted extracts stay verbatim in the source language).
+  There is no separate "what language should the report be in" question anymore
+  — `SKILL.md` reflects this. This is still just plumbing: the script echoes a
+  choice the user already made via `-l`, it does not detect or infer language.
 - **Heuristic framing is load-bearing.** Every layer (catalog header, prompt,
   output spec, README) repeats that these are candidates, not proof, and that the
   tool over-flags non-native writing. This is intentional redundancy.

@@ -34,3 +34,8 @@ Produce a single Markdown report that follows `output-spec.md` exactly. Lead wit
 the honest overall assessment, then the per-finding evidence, then concrete
 rewrite recommendations the author can act on. Keep it usable: the author should
 finish the report knowing *what* to change and *why*.
+
+Write `report.md` in **{LANG_NAME}** — the same language as `document.md`
+(selected when the package was built). Quoted extracts stay verbatim in the
+document's original language; everything else you write (assessment,
+section headers, explanations, rewrite suggestions) goes in {LANG_NAME}.

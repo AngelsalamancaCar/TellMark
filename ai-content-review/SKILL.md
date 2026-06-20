@@ -36,10 +36,10 @@ If they pasted raw text instead, save it to a `.md` file first so the script can
 process it.
 
 Also determine the **document's language** — ask the user, or infer it if the
-text makes it obvious. This picks the *tell catalog*: English documents use the
+text makes it obvious. This picks the *tell catalog* (English documents use the
 default `ai-tells.md`; Spanish documents use the hand-authored `es-tells.md` via
-`-l es`. (This is a different question from the report language in step 3 —
-don't conflate them. A Spanish document can still get an English report.)
+`-l es`) **and** the language `report.md` will be written in — the two now move
+together, see step 3.
 
 ### 2. Build the package
 Run the bundled script. It converts the document with **liteparse** (or uses the
@@ -56,19 +56,18 @@ criteria), `prompt.md` (the standardized instruction), `output-spec.md` (the
 required report format), `manifest.json`, and a `README.md`. This folder is
 portable: it has everything any agent harness needs, with no extra context.
 
-### 3. Ask the report language
-Before writing anything, ask the user what language `report.md` should be
-written in. Don't assume — not even from the document's own language. This is
-**independent** of the document language picked in step 1: that choice selects
-the *catalog* (`-l`), this one selects the *output*. Offer the document's source
-language and English as the two obvious choices if it helps frame the question,
-but let the user pick anything.
+### 3. Report language is decided
+`report.md` is written in the **same language as the document** — whichever one
+was picked in step 1 (`-l` flag). `build_package.py` bakes this into `prompt.md`
+(the `{LANG_NAME}` placeholder, filled with "English" or "Spanish"), so there is
+no separate question to ask the user here. Quoted extracts inside the report
+stay verbatim in the document's original language regardless.
 
 ### 4. Run the review
 Read `prompt.md`, `rules.md`, `document.md`, and `output-spec.md` from the
 package, then **perform the review yourself** following `prompt.md`'s method and
 producing the report exactly as `output-spec.md` specifies, written in the
-language the user chose in step 3. Save it as `report.md` inside the package
+language `prompt.md` names (step 3). Save it as `report.md` inside the package
 folder.
 
 The core of the method (full detail in `prompt.md`):
